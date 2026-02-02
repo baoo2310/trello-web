@@ -33,7 +33,7 @@ function Profiles() {
                 >
                     <Avatar 
                         alt='Avatar'
-                        sx={{ width: 30, height: 30 }}
+                        sx={{ width: 34, height: 34 }}
                     />
                 </IconButton>
             </Tooltip>
