@@ -1,4 +1,3 @@
-import { cyan, deepOrange, orange, teal } from "@mui/material/colors";
 import { extendTheme } from "@mui/material/styles";
 
 const theme = extendTheme({
@@ -9,14 +8,46 @@ const theme = extendTheme({
     colorSchemes: {
         light: {
             palette: {
-                primary: teal,
-                secondary: deepOrange,
+                primary: {
+                    main: '#1976d2',
+                    light: '#42a5f5',
+                    dark: '#1565c0'
+                },
+                secondary: {
+                    main: '#9c27b0',
+                    light: '#ba68c8',
+                    dark: '#7b1fa2'
+                },
+                background: {
+                    default: '#f5f5f5',
+                    paper: '#ffffff'
+                },
+                text: {
+                    primary: '#1a1a1a',
+                    secondary: '#666666'
+                }
             },
         },
         dark: {
             palette: {
-                primary: cyan,
-                secondary: orange
+                primary: {
+                    main: '#90caf9',
+                    light: '#e3f2fd',
+                    dark: '#42a5f5'
+                },
+                secondary: {
+                    main: '#ce93d8',
+                    light: '#f3e5f5',
+                    dark: '#ab47bc'
+                },
+                background: {
+                    default: '#121212',
+                    paper: '#1e1e1e'
+                },
+                text: {
+                    primary: '#ffffff',
+                    secondary: '#b0b0b0'
+                }
             },
         }
     },
@@ -33,7 +64,7 @@ const theme = extendTheme({
                         borderRadius: '8px'
                     },
                     '*::-webkit-scrollbar-thumb:hover': {
-                        backgroundColor: '#00b894',
+                        backgroundColor: '#95a5a6',
                     }
                 }
             }
