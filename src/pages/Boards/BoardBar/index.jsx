@@ -80,7 +80,8 @@ function BoardBar() {
                 width: 34,
                 height: 34,
                 fontSize: 16,
-              }
+              },
+              cursor: 'pointer'
             }}  
           >
             <Tooltip title="username">
