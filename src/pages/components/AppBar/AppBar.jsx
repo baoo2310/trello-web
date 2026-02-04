@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import ModeSelect from '~/components/ModeSelect';
 import AppsIcon from '@mui/icons-material/Apps';
 import SvgIcon from '@mui/material/SvgIcon';
 import TrelloIcon from '~/assets/trello-brands-solid-full.svg?react'
@@ -16,7 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Profiles from './Menus/Profiles';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
-
+import ModeSelect from '../ModeSelect/ModeSelect';
 
 function AppBar() {
   return (
