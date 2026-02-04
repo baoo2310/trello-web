@@ -1,9 +1,14 @@
 import { extendTheme } from "@mui/material/styles";
 
+const APP_BAR_HEIGHT = '58px';
+const BOARD_BAR_HEIGHT = '60px';
+const BOARD_CONTENT_HEIGHT = `calc(100vh - ${APP_BAR_HEIGHT} - ${BOARD_BAR_HEIGHT})`;
+
 const theme = extendTheme({
     trello: {
-        appBarHeight: '58px',
-        boardBarHeight: '60px',
+        appBarHeight: APP_BAR_HEIGHT,
+        boardBarHeight: BOARD_BAR_HEIGHT,
+        boardContentHeight: BOARD_CONTENT_HEIGHT
     },
     colorSchemes: {
         light: {
@@ -32,8 +37,8 @@ const theme = extendTheme({
             palette: {
                 primary: {
                     main: '#90caf9',
-                    light: '#e3f2fd',
-                    dark: '#42a5f5'
+                    light: '#b3d9ff',
+                    dark: '#5a9fd4'
                 },
                 secondary: {
                     main: '#ce93d8',
@@ -41,12 +46,12 @@ const theme = extendTheme({
                     dark: '#ab47bc'
                 },
                 background: {
-                    default: '#121212',
-                    paper: '#1e1e1e'
+                    default: '#1a1d23',
+                    paper: '#1a1a1a'
                 },
                 text: {
-                    primary: '#ffffff',
-                    secondary: '#b0b0b0'
+                    primary: '#1976d2',
+                    secondary: '#b0b3b8'
                 }
             },
         }
@@ -82,6 +87,15 @@ const theme = extendTheme({
                     return {
                         color: theme.palette.primary.main,
                         fontSize: '0.875rem'
+                    }
+                }
+            }
+        },
+        MuiTypography: {
+            styleOverrides: {
+                root: () => {
+                    return {
+                        '&.MuiTypography-body1': {fontSize: '0.875rem'}
                     }
                 }
             }
