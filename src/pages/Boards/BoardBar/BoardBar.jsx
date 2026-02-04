@@ -8,6 +8,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { capitalizeFirstLetter } from '~/utils/formatter';
 
 const MENU_STYLES = {
   color: 'primary.main',
@@ -23,7 +24,8 @@ const MENU_STYLES = {
   }
 }
 
-function BoardBar() {
+function BoardBar(props) {
+  const { board } = props; // Object destructuring
   return (
     <Box sx={{
         backgroundColor:'primary',
@@ -42,13 +44,13 @@ function BoardBar() {
           <Chip 
             sx={MENU_STYLES}
             icon={<DashBoardIcon />} 
-            label="Trello App" 
+            label={board?.title}
             clickable
           />
           <Chip 
             sx={MENU_STYLES}
             icon={<VpnLockIcon />} 
-            label="Public/Private Workspace" 
+            label={capitalizeFirstLetter(board?.type)}
             clickable
           />
           <Chip 
@@ -76,7 +78,7 @@ function BoardBar() {
             max={7} 
             total={8}
             sx={{
-              '&. MuiAvatar-root': {
+              '& .MuiAvatar-root': {
                 width: 34,
                 height: 34,
                 fontSize: 16,

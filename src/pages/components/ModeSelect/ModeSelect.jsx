@@ -24,7 +24,7 @@ export default function ModeSelect() {
       <Select
         labelId='label-select-dark-light-mode'
         id='select-dark-light-mode'
-        value={mode}
+        value={mode || ''}
         label="Mode"
         onChange={handleChange}
       >
