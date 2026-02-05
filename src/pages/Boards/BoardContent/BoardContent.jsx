@@ -15,10 +15,11 @@ import {
 } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 
 import Column from './ListColumns/Column/Column';
 import Card from './ListColumns/Column/ListCards/Card/Card';
+import { generatePlaceholderCard } from '~/utils/formatter';
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -40,8 +41,28 @@ function BoardContent({ board }) {
   const [activeDragItemData, setActiveDragItemData] = useState(null);
   const [oldColumnWhenDragging, setOldColumnWhenDragging] = useState(null);
 
+  const normalizeColumns = (columns) => {
+    return columns.map((column) => {
+      const realCards = column?.cards?.filter(card => !card.FE_PlaceholderCard) || [];
+      if (isEmpty(realCards)) {
+        const placeholder = generatePlaceholderCard(column);
+        return {
+          ...column,
+          cards: [placeholder],
+          cardOrderIds: [placeholder._id],
+        };
+      }
+      return {
+        ...column,
+        cards: realCards,
+        cardOrderIds: realCards.map(card => card._id)
+      };
+    });
+  };
+
   useEffect(() => {
-    setOrderedColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'));
+    const ordered = mapOrder(board?.columns, board?.columnOrderIds, '_id');
+    setOrderedColumns(normalizeColumns(ordered));
   }, [board])
   // Find a column base on cardId 
   const findColumnByCardId = (cardId) => {
@@ -102,7 +123,7 @@ function BoardContent({ board }) {
         }
 
 
-        return nextColumns;
+        return normalizeColumns(nextColumns);
       })
     }
   }
@@ -143,16 +164,25 @@ function BoardContent({ board }) {
             // remove card at active column 
             nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card._id !== activeDraggingCardId)
             // update the cardOrderIds
+            // The last cards be dragged
+            if(isEmpty(nextActiveColumn.cards)) {
+              nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+              // console.log(`nextActiveColumn`, nextActiveColumn)
+            }
+
             nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card._id);
           }
           if (nextOverColumn) {
             // keep existing cards in the target column
             nextOverColumn.cards = nextOverColumn.cards.toSpliced(newCardIndex, 0, activeDraggingCardData);
+
+            nextOverColumn.cards = nextOverColumn.cards.filter(card => !card.FE_PlaceholderCard);
+
             nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card._id);
           }
 
 
-          return nextColumns;
+          return normalizeColumns(nextColumns);
         })
       }
       else {
@@ -166,7 +196,7 @@ function BoardContent({ board }) {
           targetColumn.cards = dndOrderedCards;
           targetColumn.cardOrderIds = dndOrderedCards.map(c => c._id);
 
-          return nextColumns;
+          return normalizeColumns(nextColumns);
         })
       }
 
