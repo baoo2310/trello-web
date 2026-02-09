@@ -30,7 +30,7 @@ function Column({ column }) {
         transition,
         isDragging
     } = useSortable({ 
-        id: column._id,
+        id: column.id,
         data: {...column}
     });
 
@@ -51,7 +51,7 @@ function Column({ column }) {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id');
+    const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, 'id');
 
     return (
         <div

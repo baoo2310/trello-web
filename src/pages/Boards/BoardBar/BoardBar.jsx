@@ -41,12 +41,14 @@ function BoardBar(props) {
         borderColor: (theme) => theme.palette.mode === 'dark' ? '#2c2c2c' : '#e0e0e0'
     }}>
         <Box sx={{ display:'flex', alignItems: 'center', gap: 2 }}>
-          <Chip 
-            sx={MENU_STYLES}
-            icon={<DashBoardIcon />} 
-            label={board?.title}
-            clickable
-          />
+          <Tooltip title={board?.title}>
+            <Chip 
+              sx={MENU_STYLES}
+              icon={<DashBoardIcon />} 
+              label={board?.title}
+              clickable
+            />
+          </Tooltip>
           <Chip 
             sx={MENU_STYLES}
             icon={<VpnLockIcon />} 

@@ -11,7 +11,7 @@ function ListColumns({ columns }) {
     * Not match the type, it still can be drag and drop but does not have the animations
     */
     return (
-        <SortableContext items={columns?.map((c) => c._id)} strategy={horizontalListSortingStrategy}>
+        <SortableContext items={columns?.map((c) => c.id)} strategy={horizontalListSortingStrategy}>
             <Box sx={{
                 bgcolor: 'inherit',
                 width: '100%',
@@ -20,7 +20,7 @@ function ListColumns({ columns }) {
                 overflowX: 'auto',
                 overflowY: 'hidden'
             }}>  
-                {columns?.map((col) => <Column key={col._id} column={col} />)}
+                {columns?.map((col) => <Column key={col.id} column={col} />)}
                 {/* Add new column */}
                 <Box sx={{
                     minWidth: '200px',
