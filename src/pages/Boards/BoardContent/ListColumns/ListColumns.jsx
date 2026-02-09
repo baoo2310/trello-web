@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { toast } from 'react-toastify';
 
 
-function ListColumns({ columns }) {
+function ListColumns({ columns, createNewColumn, createNewCard }) {
     /*
     * SortableContext require items is an array ['id-1', 'id-2',...] not [{id: 'id-1'}, {id: 'id-2'},...]
     * Not match the type, it still can be drag and drop but does not have the animations
@@ -19,12 +19,16 @@ function ListColumns({ columns }) {
 
     const [newColumnTitle, setNewColumnTitle] = useState('');
 
-    const addNewColumn = () => {
+    const addNewColumn = async () => {
         if(!newColumnTitle){
             toast.error(`Please enter Column title`)
         }
 
+        const newColumnData = {
+            title: newColumnTitle,
+        }
 
+        await createNewColumn(newColumnData);
 
         toggleopenNewColumnForm();
         setNewColumnTitle('');
@@ -39,7 +43,7 @@ function ListColumns({ columns }) {
                 overflowX: 'auto',
                 overflowY: 'hidden'
             }}>
-                {columns?.map((col) => <Column key={col.id} column={col} />)}
+                {columns?.map((col) => <Column key={col.id} column={col} createNewCard={createNewCard} />)}
                 {/* Add new column */}
                 {!openNewColumnForm
                     ? <Box sx={{

@@ -25,7 +25,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useColorScheme } from '@mui/material/styles';
 import { toast } from 'react-toastify';
 
-function Column({ column }) {
+function Column({ column, createNewCard }) {
     const { mode } = useColorScheme();
     const {
         attributes,
@@ -56,19 +56,24 @@ function Column({ column }) {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, 'id');
+    const orderedCards = mapOrder(column?.cards, column?.card_order_ids, 'id');
 
     const [openNewCardForm, setOpenNewCardForm] = useState(false);
     const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm);
 
     const [newCardTitle, setNewCardTitle] = useState('');
 
-    const addNewCard = () => {
+    const addNewCard = async () => {
         if (!newCardTitle){
             toast.error(`Please enter Card title`);
         }
 
+        const newCardData = {
+            title: newCardTitle,
+            column_id: column.id,
+        }
 
+        await createNewCard(newCardData);
 
         toggleOpenNewCardForm();
         setNewCardTitle('');

@@ -21,13 +21,14 @@ import { cloneDeep, isEmpty } from 'lodash';
 import Column from './ListColumns/Column/Column';
 import Card from './ListColumns/Column/ListCards/Card/Card';
 import { generatePlaceholderCard } from '~/utils/formatter';
+import { updateBoardAPI, updateColumnAPI } from '~/apis';
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
 };
 
-function BoardContent({ board }) {
+function BoardContent({ board, createNewColumn, createNewCard }) {
   const { mode } = useColorScheme();
   // if use PointerSensor default has to associate with the touch-action = 'none' but have bugs.
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
@@ -45,41 +46,59 @@ function BoardContent({ board }) {
 
   const normalizeColumns = (columns) => {
     return columns.map((column) => {
-      const realCards = column?.cards?.filter(card => !card.FE_PlaceholderCard) || [];
+      const rawCards = column?.cards || [];
+      const normalizedCards = rawCards.map((card) => ({
+        ...card,
+        id: card.id || card._id,
+        columnId: card.columnId || card.column_id,
+      }));
+
+      const realCards = normalizedCards.filter(card => !card.FE_PlaceholderCard);
       if (isEmpty(realCards)) {
         const placeholder = generatePlaceholderCard(column);
         return {
           ...column,
           cards: [placeholder],
-          cardOrderIds: [placeholder.id],
+          card_order_ids: [placeholder.id],
         };
       }
       return {
         ...column,
         cards: realCards,
-        cardOrderIds: column?.card_order_ids || column?.cardOrderIds || realCards.map(card => card.id)
+        card_order_ids: column?.card_order_ids || realCards.map(card => card.id)
       };
     });
   };
 
   useEffect(() => {
     const columns = (board?.columns || []).map((column) => {
-      const cards = (board?.cards || []).filter(card => card.column_id === column.id);
+      const cardsFromBoard = board?.cards;
+      const cardsFromColumn = column?.cards || [];
+      const cards = Array.isArray(cardsFromBoard)
+        ? cardsFromBoard.filter(card => (card.column_id ?? card.columnId) === column.id)
+        : cardsFromColumn;
       return { ...column, cards };
     });
     const ordered = mapOrder(columns, board?.column_order_ids || board?.columnOrderIds, 'id');
     setOrderedColumns(normalizeColumns(ordered));
-  }, [board])
+  }, [board]);
   // Find a column base on cardId 
   const findColumnByCardId = (cardId) => {
     return orderedColumns.find(column => column?.cards?.map(card => card.id)?.includes(cardId));
   }
 
   const handleDragStart = (event) => {
+    const data = event?.active?.data?.current;
+    const isCard =
+      Boolean(data?.columnId) || Boolean(data?.column_id);
+
     setActiveDragItemId(event?.active?.id);
-    setActiveDragItemType(event?.active?.data?.current?.columnId ? ACTIVE_DRAG_ITEM_TYPE.CARD : ACTIVE_DRAG_ITEM_TYPE.COLUMN);
-    setActiveDragItemData(event?.active?.data?.current);
-    if (event?.active?.data?.current?.columnId) {
+    setActiveDragItemType(
+      isCard ? ACTIVE_DRAG_ITEM_TYPE.CARD : ACTIVE_DRAG_ITEM_TYPE.COLUMN
+    );
+    setActiveDragItemData(data);
+
+    if (isCard) {
       setOldColumnWhenDragging(findColumnByCardId(event?.active?.id));
     }
   }
@@ -119,13 +138,13 @@ function BoardContent({ board }) {
         if (nextActiveColumn) {
           // remove card at active column 
           nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card.id !== activeDraggingCardId)
-          // update the cardOrderIds
-          nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card.id);
+          // update the card_order_ids
+          nextActiveColumn.card_order_ids = nextActiveColumn.cards.map(card => card.id);
         }
         if (nextOverColumn) {
           // keep existing cards in the target column
           nextOverColumn.cards = nextOverColumn.cards.toSpliced(newCardIndex, 0, activeDraggingCardData);
-          nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card.id);
+          nextOverColumn.card_order_ids = nextOverColumn.cards.map(card => card.id);
         }
 
 
@@ -159,7 +178,7 @@ function BoardContent({ board }) {
           const isBelowOverItem =
             active.rect.current.translated &&
             active.rect.current.translated.top >
-            over.rect.top + over.rect.height;
+            over.rect.top + over.rect.height / 2;
           const modifier = isBelowOverItem ? 1 : 0;
           newCardIndex = overCardIndex >= 0 ? overCardIndex + modifier : overColumn?.cards?.length + 1;
           // clone the old array OrderedColumnsState to a new one to modifier. After that return the new one
@@ -169,14 +188,14 @@ function BoardContent({ board }) {
           if (nextActiveColumn) {
             // remove card at active column 
             nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card.id !== activeDraggingCardId)
-            // update the cardOrderIds
+            // update the card_order_ids
             // The last cards be dragged
             if(isEmpty(nextActiveColumn.cards)) {
               nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
               // console.log(`nextActiveColumn`, nextActiveColumn)
             }
 
-            nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card.id);
+            nextActiveColumn.card_order_ids = nextActiveColumn.cards.map(card => card.id);
           }
           if (nextOverColumn) {
             // keep existing cards in the target column
@@ -184,12 +203,16 @@ function BoardContent({ board }) {
 
             nextOverColumn.cards = nextOverColumn.cards.filter(card => !card.FE_PlaceholderCard);
 
-            nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card.id);
+            nextOverColumn.card_order_ids = nextOverColumn.cards.map(card => card.id);
           }
 
 
           return normalizeColumns(nextColumns);
-        })
+        });
+        const nextActiveColumn = activeColumn;
+        const nextOverColumn = overColumn;
+        updateColumnAPI(nextActiveColumn.id, { card_order_ids: nextActiveColumn.cards.map(c => c.id) });
+        updateColumnAPI(nextOverColumn.id, { card_order_ids: nextOverColumn.cards.map(c => c.id) });
       }
       else {
         const oldCardIndex = oldColumnWhenDragging?.cards?.findIndex(c => c.id === activeDragItemId); // Old index of active
@@ -200,12 +223,12 @@ function BoardContent({ board }) {
 
           const targetColumn = nextColumns.find(c => c.id === overColumn.id);
           targetColumn.cards = dndOrderedCards;
-          targetColumn.cardOrderIds = dndOrderedCards.map(c => c.id);
+          targetColumn.card_order_ids = dndOrderedCards.map(c => c.id);
 
           return normalizeColumns(nextColumns);
-        })
+        });
+        updateColumnAPI(overColumn.id, { card_order_ids: dndOrderedCards.map(c => c.id) });
       }
-
     }
 
     if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
@@ -216,6 +239,8 @@ function BoardContent({ board }) {
         const dndOrderedColumns = arrayMove(orderedColumns, oldColumnIndex, newColumnIndex);
         // const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id);
         setOrderedColumns(dndOrderedColumns);
+        const dndOrderedColumnIds = dndOrderedColumns.map(c => c.id);
+        updateBoardAPI(board.id, { columnOrderIds: dndOrderedColumnIds });
       }
     }
 
@@ -252,7 +277,11 @@ function BoardContent({ board }) {
           m: 2,
         },
       }}>
-        <ListColumns columns={orderedColumns} />
+        <ListColumns 
+          columns={orderedColumns} 
+          createNewColumn={createNewColumn}
+          createNewCard={createNewCard}
+        />
         <DragOverlay dropAnimation={customDropAnimation}>
           {!activeDragItemType && null}
           {(activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) && <Column column={activeDragItemData} />}
