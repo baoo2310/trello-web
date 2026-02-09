@@ -18,31 +18,9 @@ const theme = extendTheme({
         light: {
             palette: {
                 primary: {
-                    main: '#1976d2',
-                    light: '#42a5f5',
-                    dark: '#1565c0'
-                },
-                secondary: {
-                    main: '#9c27b0',
-                    light: '#ba68c8',
-                    dark: '#7b1fa2'
-                },
-                background: {
-                    default: '#f5f5f5',
-                    paper: '#ffffff'
-                },
-                text: {
-                    primary: '#1a1a1a',
-                    secondary: '#666666'
-                }
-            },
-        },
-        dark: {
-            palette: {
-                primary: {
-                    main: '#90caf9',
-                    light: '#b3d9ff',
-                    dark: '#5a9fd4'
+                    main: '#90caf9', // Lighter blue to contrast against dark background
+                    light: '#e3f2fd',
+                    dark: '#42a5f5'
                 },
                 secondary: {
                     main: '#ce93d8',
@@ -50,18 +28,40 @@ const theme = extendTheme({
                     dark: '#ab47bc'
                 },
                 background: {
-                    default: '#1a1d23',
-                    paper: '#1a1a1a'
+                    default: '#1262b8', // Dark Blue
+                    paper: '#ffffff'    // Slightly lighter Dark Blue for cards
                 },
                 text: {
-                    primary: '#1976d2',
-                    secondary: '#b0b3b8'
+                    primary: '#414141', // White text
+                    secondary: '#b2bac2' // Light grey for secondary text
+                }
+            },
+        },
+        dark: {
+            palette: {
+                primary: {
+                    main: '#579dff',
+                    light: '#82c7ff',
+                    dark: '#ffffff'
+                },
+                secondary: {
+                    main: '#ce93d8',
+                    light: '#f3e5f5',
+                    dark: '#ab47bc'
+                },
+                background: {
+                    default: 'rgb(35, 52, 77)', // Modern "Deep Slate"
+                    paper: '#161b22'
+                },
+                text: {
+                    primary: '#b6c2cf',
+                    secondary: '#000000'
                 }
             },
         }
     },
     components: {
-        MuiCssBaseline : {
+        MuiCssBaseline: {
             styleOverrides: {
                 body: {
                     '*::-webkit-scrollbar': {
@@ -99,7 +99,7 @@ const theme = extendTheme({
             styleOverrides: {
                 root: () => {
                     return {
-                        '&.MuiTypography-body1': {fontSize: '0.875rem'}
+                        '&.MuiTypography-body1': { fontSize: '0.875rem' }
                     }
                 }
             }

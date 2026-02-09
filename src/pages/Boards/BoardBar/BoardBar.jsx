@@ -12,7 +12,7 @@ import { capitalizeFirstLetter } from '~/utils/formatter';
 
 const MENU_STYLES = {
   color: 'primary.main',
-  bgcolor: 'white',
+  bgcolor: 'background.default',
   border: 'none',
   paddingX: '5px',
   borderRadius: '4px',
@@ -20,7 +20,7 @@ const MENU_STYLES = {
     color: 'primary.main'
   },
   '&:hover': {
-    bgcolor: 'primary.50'
+    bgcolor: 'primary'
   }
 }
 
@@ -28,7 +28,7 @@ function BoardBar(props) {
   const { board } = props; // Object destructuring
   return (
     <Box sx={{
-        backgroundColor:'primary',
+        backgroundColor:'background.default',
         width:'100%',
         height: (theme) => theme.trello.boardBarHeight,
         display: 'flex',
