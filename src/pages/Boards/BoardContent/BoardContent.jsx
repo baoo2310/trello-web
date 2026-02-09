@@ -14,6 +14,7 @@ import {
   closestCorners
 } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
+import { useColorScheme } from '@mui/material/styles';
 import { arrayMove } from '@dnd-kit/sortable';
 import { cloneDeep, isEmpty } from 'lodash';
 
@@ -27,6 +28,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 };
 
 function BoardContent({ board }) {
+  const { mode } = useColorScheme();
   // if use PointerSensor default has to associate with the touch-action = 'none' but have bugs.
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
   // Require the mouse move 10px before activating
@@ -242,7 +244,7 @@ function BoardContent({ board }) {
       collisionDetection={closestCorners}
     >
       <Box sx={{
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
+        bgcolor: mode === 'dark' ? '#34495e' : '#1976d2',
         width: '100%',
         height: (theme) => theme.trello.boardContentHeight,
         p: '10px 0',
