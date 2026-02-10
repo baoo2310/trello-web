@@ -28,7 +28,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
 };
 
-function BoardContent({ board, createNewColumn, createNewCard }) {
+function BoardContent({ board, createNewColumn, createNewCard, deleteCard, deleteColumn }) {
   const { mode } = useColorScheme();
   // if use PointerSensor default has to associate with the touch-action = 'none' but have bugs.
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
@@ -281,6 +281,8 @@ function BoardContent({ board, createNewColumn, createNewCard }) {
           columns={orderedColumns} 
           createNewColumn={createNewColumn}
           createNewCard={createNewCard}
+          deleteCard={deleteCard}
+          deleteColumn={deleteColumn}
         />
         <DragOverlay dropAnimation={customDropAnimation}>
           {!activeDragItemType && null}

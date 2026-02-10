@@ -5,7 +5,7 @@ import BoardContent from './BoardContent/BoardContent'
 // import { mockData } from '~/apis/mock-data';
 import AppBar from '../components/AppBar/AppBar';
 import { useEffect, useState } from 'react';
-import { createNewCardAPI, createNewColumnAPI, fetchBoardDetailsAPI } from '~/apis';
+import { createNewCardAPI, createNewColumnAPI, deleteCardAPI, deleteColumnAPI, fetchBoardDetailsAPI } from '~/apis';
 import { isEmpty } from 'lodash';
 import { generatePlaceholderCard } from '~/utils/formatter';
 
@@ -61,6 +61,39 @@ function Board() {
         setBoard(newBoard);
     };
 
+    const deleteCard = async (cardId) => {
+        const deleted = await deleteCardAPI(cardId);
+        if(!deleted) return;
+        setBoard(prev => {
+            if(!prev) return prev;
+            const next = { ...prev };
+            const column = next.columns.find(c => c.id === deleted.column_id);
+            if(!column) return next;
+            column.cards = (column.cards || []).filter(c => c.id !== deleted.id);
+            if(isEmpty(column.cards)){
+                const placeholder = generatePlaceholderCard(column);
+                column.cards = [placeholder];
+                column.card_order_ids = [placeholder.id];
+            }
+            else {
+                column.card_order_ids = column.cards.map(c => c.id);
+            }
+            return next;
+        });
+    }
+
+    const deleteColumn = async (columnId) => {
+        const deleted = await deleteColumnAPI(columnId);
+        if(!deleted) return;
+        setBoard(prev => {
+            if(!prev) return prev;
+            const next = { ...prev };
+            next.columns = next.columns.filter(c => c.id !== deleted.id);
+            next.column_order_ids = next.columns.map(c => c.id);
+            return next;
+        })
+    }
+
     return (
         <Container disableGutters maxWidth={false} sx={{ height:'100vh' }}>
             <AppBar />
@@ -69,6 +102,8 @@ function Board() {
                 board={board}
                 createNewColumn={createNewColumn}
                 createNewCard={createNewCard}
+                deleteCard={deleteCard}
+                deleteColumn={deleteColumn}
             />
         </Container>
     )
