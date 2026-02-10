@@ -22,6 +22,16 @@ export const updateBoardAPI = async (boardId, updateData) => {
 };
 
 export const updateColumnAPI = async (columnId, updateData) => {
-  const res = await axios.put(`/v1/columns/${columnId}`, updateData);
-  return res.data;
+    const res = await axios.put(`${API_ROOT}/v1/columns/${columnId}`, updateData);
+    return res.data;
 };
+
+export const deleteCardAPI = async (cardId) => {
+    const res = await axios.delete(`${API_ROOT}/v1/cards/${cardId}`);
+    return res.data;
+}
+
+export const deleteColumnAPI = async (columnId) => {
+    const res = await axios.delete(`${API_ROOT}/v1/columns/${columnId}`);
+    return res.data;
+}

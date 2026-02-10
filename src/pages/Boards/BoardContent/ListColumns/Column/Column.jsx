@@ -25,7 +25,28 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useColorScheme } from '@mui/material/styles';
 import { toast } from 'react-toastify';
 
-function Column({ column, createNewCard }) {
+import * as React from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
+import Slide from '@mui/material/Slide';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+
+function Column({ column, createNewCard, onDelete, deleteColumn }) {
+    const [openDialog, setOpenDialog] = React.useState(false);
+
+    const handleClickOpen = () => {
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
     const { mode } = useColorScheme();
     const {
         attributes,
@@ -66,6 +87,7 @@ function Column({ column, createNewCard }) {
     const addNewCard = async () => {
         if (!newCardTitle){
             toast.error(`Please enter Card title`);
+            return;
         }
 
         const newCardData = {
@@ -77,6 +99,11 @@ function Column({ column, createNewCard }) {
 
         toggleOpenNewCardForm();
         setNewCardTitle('');
+    }
+
+    const handleDeleteColumn = async () => {
+        await deleteColumn(column.id);
+        handleCloseDialog();
     }
 
     return (
@@ -158,15 +185,30 @@ function Column({ column, createNewCard }) {
                                 <ListItemIcon><Cloud fontSize="small" /></ListItemIcon>
                                 <ListItemText>Archive this column</ListItemText>
                             </MenuItem>
-                            <MenuItem>
+                            <MenuItem onClick={handleClickOpen}>
                                 <ListItemIcon><DeleteForeverIcon fontSize="small" /></ListItemIcon>
                                 <ListItemText>Remove this column</ListItemText>
                             </MenuItem>
+                            <Dialog
+                                open={openDialog}
+                                slots={{
+                                transition: Transition,
+                                }}
+                                keepMounted
+                                onClose={handleCloseDialog}
+                                aria-describedby="alert-dialog-slide-description"
+                            >
+                                <DialogTitle>{"Are you sure to delete this colum (All cards wil be deleted)"}</DialogTitle>
+                                <DialogActions>
+                                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                                    <Button color="error" onClick={handleDeleteColumn}>Delete All</Button>
+                                </DialogActions>
+                            </Dialog>
                         </Menu>
                     </Box>
                 </Box>
                 {/* Box List Card */}
-                <ListCards cards={orderedCards} />
+                <ListCards cards={orderedCards} onDelete={onDelete} />
                 {/* Box Footer */}
                 <Box sx={{
                     height: (theme) => theme.trello.columnFooterHeight,

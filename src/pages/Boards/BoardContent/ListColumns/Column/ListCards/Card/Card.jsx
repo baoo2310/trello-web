@@ -1,4 +1,5 @@
-import { Card as MuiCard } from '@mui/material';
+/* eslint-disable no-useless-catch */
+import { Box, Card as MuiCard } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -9,8 +10,10 @@ import { Button } from '@mui/material';
 import { Typography } from '@mui/material';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import CloseIcon from '@mui/icons-material/Close';
+import { toast } from 'react-toastify';
 
-function Card({ card }) {
+function Card({ card, onDelete }) {
     const {
         attributes,
         listeners,
@@ -34,6 +37,15 @@ function Card({ card }) {
     const shouldShowCardActions = () => {
         return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length;
     }
+
+    const deleteCard = async () => {
+        try {
+            // const deleted = await deleteCardAPI(card.id);
+            toast.success(`Card deleted`);
+            if(onDelete) onDelete(card.id);
+        } catch (error) { toast.error(`Delete failed`) }
+    }
+
     return (
         <MuiCard 
             ref={setNodeRef}
@@ -59,7 +71,22 @@ function Card({ card }) {
             }
             
             <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-                <Typography>{card?.title}</Typography>
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1
+                }}>
+                    <Typography>{card?.title}</Typography>
+                    <CloseIcon
+                        sx={{ 
+                            color: 'white', 
+                            cursor: 'pointer',
+                            '&:hover': { color: (theme) => theme.palette.warning.light }
+                        }}
+                        onClick={deleteCard}
+                    />
+                </Box>
             </CardContent>
             {shouldShowCardActions() && 
                 <CardActions sx={{ p: '0 4px 8px 4px' }}>
