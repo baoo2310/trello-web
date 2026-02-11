@@ -1,10 +1,10 @@
 import axios from "axios";
 import { API_ROOT } from "~/utils/constants";
 
-export const fetchBoardDetailsAPI = async (boardId) => {
-    const res = await axios.get(`${API_ROOT}/v1/boards/${boardId}`);
-    return res.data;
-}
+// export const fetchBoardDetailsAPI = async (boardId) => {
+//     const res = await axios.get(`${API_ROOT}/v1/boards/${boardId}`);
+//     return res.data;
+// }
 
 export const createNewColumnAPI = async (newColumnData) => {
     const res = await axios.post(`${API_ROOT}/v1/columns/`, newColumnData);
@@ -23,6 +23,11 @@ export const updateBoardAPI = async (boardId, updateData) => {
 
 export const updateColumnAPI = async (columnId, updateData) => {
     const res = await axios.put(`${API_ROOT}/v1/columns/${columnId}`, updateData);
+    return res.data;
+};
+
+export const updateCardAPI = async (cardId, updateData) => {
+    const res = await axios.put(`${API_ROOT}/v1/cards/${cardId}`, updateData);
     return res.data;
 };
 

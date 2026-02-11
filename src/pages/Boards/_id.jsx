@@ -4,30 +4,26 @@ import BoardBar from './BoardBar/BoardBar';
 import BoardContent from './BoardContent/BoardContent'
 // import { mockData } from '~/apis/mock-data';
 import AppBar from '../components/AppBar/AppBar';
-import { useEffect, useState } from 'react';
-import { createNewCardAPI, createNewColumnAPI, deleteCardAPI, deleteColumnAPI, fetchBoardDetailsAPI } from '~/apis';
-import { isEmpty } from 'lodash';
+import { useEffect } from 'react';
+import { createNewCardAPI, createNewColumnAPI, deleteCardAPI, deleteColumnAPI } from '~/apis';
+import { cloneDeep, isEmpty } from 'lodash';
 import { generatePlaceholderCard } from '~/utils/formatter';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice';
 
 function Board() {
-    const [board, setBoard] = useState(null);
+    // const [board, setBoard] = useState(null);
+    const board = useSelector(selectCurrentActiveBoard);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const boardId = 'b927744a-d3b1-4778-bad9-5b0d8c73ac06';
-        fetchBoardDetailsAPI(boardId).then((board) => {
-            board.columns.forEach(column => {
-                if (isEmpty(column.cards)) {
-                    const placeholder = generatePlaceholderCard(column);
-                    column.cards = [placeholder];
-                    column.card_order_ids = [placeholder.id];
-                }
-            })
-            setBoard(board)
-        });
-    }, [])
+        dispatch(fetchBoardDetailsAPI(boardId));
+    }, [dispatch])
 
     // This function is used to call API to create new column and re-render state-board
     const createNewColumn = async (newColumnData) => {
+        if (!board) return;
         const createdColumn = await createNewColumnAPI({
             ...newColumnData,
             board_id: board.id
@@ -36,11 +32,19 @@ function Board() {
         createdColumn.cards = [placeholder];
         createdColumn.card_order_ids = [placeholder.id];
 
+        // This one got error cause shallow copy -> use deep copy
+        // const newBoard = { ...board }
         // update state board
-        const newBoard = { ...board }
+        const newBoard = cloneDeep(board);
         newBoard.columns.push(createdColumn);
         newBoard.column_order_ids.push(createdColumn.id);
-        setBoard(newBoard);
+
+        // Another way is use array concat
+        // const newBoard = { ...board };
+        // newBoard.columns = newBoard.columns.concat([createdColumn]);
+        // newBoard.column_order_ids = newBoard.column_order_ids.concat([createdColumn.id]);
+
+        dispatch(updateCurrentActiveBoard(newBoard));
     };
 
     const createNewCard = async (newCardData) => {
@@ -49,49 +53,56 @@ function Board() {
             board_id: board.id
         });
         // update state board
-        const newBoard = { ...board };
+        const newBoard = cloneDeep(board);
         const columnToUpdate = newBoard.columns.find(
             column => column.id === createdCard.column_id
         );
         if (columnToUpdate) {
-            columnToUpdate.cards = (columnToUpdate.cards || []).filter(c => !c.FE_PlaceholderCard);
-            columnToUpdate.cards.push(createdCard);
-            columnToUpdate.card_order_ids = columnToUpdate.cards.map(c => c.id);
+            if(columnToUpdate.cards.some(card => card.FE_PlaceholderCard)){
+                columnToUpdate.cards = [createdCard];
+                columnToUpdate.card_order_ids = [createdCard.id];
+            } else {
+                columnToUpdate.cards.push(createdCard);
+                columnToUpdate.card_order_ids.push(createdCard.id);
+            }            
         }
-        setBoard(newBoard);
+        dispatch(updateCurrentActiveBoard(newBoard));
     };
 
     const deleteCard = async (cardId) => {
         const deleted = await deleteCardAPI(cardId);
         if(!deleted) return;
-        setBoard(prev => {
-            if(!prev) return prev;
-            const next = { ...prev };
-            const column = next.columns.find(c => c.id === deleted.column_id);
-            if(!column) return next;
-            column.cards = (column.cards || []).filter(c => c.id !== deleted.id);
-            if(isEmpty(column.cards)){
-                const placeholder = generatePlaceholderCard(column);
-                column.cards = [placeholder];
-                column.card_order_ids = [placeholder.id];
-            }
-            else {
-                column.card_order_ids = column.cards.map(c => c.id);
-            }
-            return next;
-        });
+        if (!board) return;
+        const newBoard = {
+            ...board,
+            columns: board.columns.map(column => {
+                if (column.id !== deleted.column_id) return column;
+                let nextCards = (column.cards || []).filter(c => c.id !== deleted.id);
+                if (isEmpty(nextCards)) {
+                    const placeholder = generatePlaceholderCard(column);
+                    nextCards = [placeholder];
+                }
+                return {
+                    ...column,
+                    cards: nextCards,
+                    card_order_ids: nextCards.map(c => c.id)
+                };
+            })
+        };
+        dispatch(updateCurrentActiveBoard(newBoard));
     }
 
     const deleteColumn = async (columnId) => {
         const deleted = await deleteColumnAPI(columnId);
         if(!deleted) return;
-        setBoard(prev => {
-            if(!prev) return prev;
-            const next = { ...prev };
-            next.columns = next.columns.filter(c => c.id !== deleted.id);
-            next.column_order_ids = next.columns.map(c => c.id);
-            return next;
-        })
+        if (!board) return;
+        const nextColumns = board.columns.filter(c => c.id !== deleted.id);
+        const newBoard = {
+            ...board,
+            columns: nextColumns,
+            column_order_ids: nextColumns.map(c => c.id)
+        };
+        dispatch(updateCurrentActiveBoard(newBoard));
     }
 
     return (
