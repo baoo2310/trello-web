@@ -9,13 +9,18 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/ReactToastify.css';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.js';
+import { BrowserRouter } from 'react-router-dom';
+
+// Config react-router-dom with browser-router
 
 createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <CssVarsProvider theme={theme}>
-      <CssBaseline />
-      <App />
-      <ToastContainer position='bottom-right' theme='colored'/>
-    </CssVarsProvider>
-  </Provider>
+  <BrowserRouter basename='/'>
+    <Provider store={store}>
+      <CssVarsProvider theme={theme}>
+        <CssBaseline />
+        <App />
+        <ToastContainer position='bottom-right' theme='colored'/>
+      </CssVarsProvider>
+    </Provider>
+  </BrowserRouter>
 )

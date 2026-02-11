@@ -10,16 +10,19 @@ import { cloneDeep, isEmpty } from 'lodash';
 import { generatePlaceholderCard } from '~/utils/formatter';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice';
+import { useParams } from 'react-router-dom';
 
 function Board() {
     // const [board, setBoard] = useState(null);
     const board = useSelector(selectCurrentActiveBoard);
     const dispatch = useDispatch();
 
+    const { boardId } = useParams();
+
     useEffect(() => {
-        const boardId = 'b927744a-d3b1-4778-bad9-5b0d8c73ac06';
+        // const boardId = 'b927744a-d3b1-4778-bad9-5b0d8c73ac06';
         dispatch(fetchBoardDetailsAPI(boardId));
-    }, [dispatch])
+    }, [dispatch, boardId]);
 
     // This function is used to call API to create new column and re-render state-board
     const createNewColumn = async (newColumnData) => {
