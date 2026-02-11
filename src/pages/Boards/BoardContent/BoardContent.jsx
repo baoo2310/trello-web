@@ -21,11 +21,19 @@ import { cloneDeep, isEmpty } from 'lodash';
 import Column from './ListColumns/Column/Column';
 import Card from './ListColumns/Column/ListCards/Card/Card';
 import { generatePlaceholderCard } from '~/utils/formatter';
-import { updateBoardAPI, updateColumnAPI } from '~/apis';
+import { updateBoardAPI, updateCardAPI, updateColumnAPI } from '~/apis';
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
+};
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const toUuidList = (cards) => {
+  return (cards || [])
+    .map(card => card?.id || card?._id)
+    .filter(id => typeof id === 'string' && UUID_RE.test(id));
 };
 
 function BoardContent({ board, createNewColumn, createNewCard, deleteCard, deleteColumn }) {
@@ -170,49 +178,46 @@ function BoardContent({ board, createNewColumn, createNewCard, deleteCard, delet
       if (!activeColumn || !overColumn) return;
 
       if (oldColumnWhenDragging.id !== overColumn.id) {
-        setOrderedColumns(prevColumns => {
-          // find the position of overCard in the goal column
-          const overCardIndex = overColumn?.cards?.findIndex(card => card.id === overCardId);
+        // find the position of overCard in the goal column
+        const overCardIndex = overColumn?.cards?.findIndex(card => card.id === overCardId);
 
-          let newCardIndex;
-          const isBelowOverItem =
-            active.rect.current.translated &&
-            active.rect.current.translated.top >
-            over.rect.top + over.rect.height / 2;
-          const modifier = isBelowOverItem ? 1 : 0;
-          newCardIndex = overCardIndex >= 0 ? overCardIndex + modifier : overColumn?.cards?.length + 1;
-          // clone the old array OrderedColumnsState to a new one to modifier. After that return the new one
-          const nextColumns = cloneDeep(prevColumns);
-          const nextActiveColumn = nextColumns.find(column => column.id === activeColumn.id);
-          const nextOverColumn = nextColumns.find(column => column.id === overColumn.id)
-          if (nextActiveColumn) {
-            // remove card at active column 
-            nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card.id !== activeDraggingCardId)
-            // update the card_order_ids
-            // The last cards be dragged
-            if(isEmpty(nextActiveColumn.cards)) {
-              nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
-              // console.log(`nextActiveColumn`, nextActiveColumn)
-            }
+        let newCardIndex;
+        const isBelowOverItem =
+          active.rect.current.translated &&
+          active.rect.current.translated.top >
+          over.rect.top + over.rect.height / 2;
+        const modifier = isBelowOverItem ? 1 : 0;
+        newCardIndex = overCardIndex >= 0 ? overCardIndex + modifier : overColumn?.cards?.length + 1;
 
-            nextActiveColumn.card_order_ids = nextActiveColumn.cards.map(card => card.id);
+        const nextColumns = cloneDeep(orderedColumns);
+        const nextActiveColumn = nextColumns.find(column => column.id === activeColumn.id);
+        const nextOverColumn = nextColumns.find(column => column.id === overColumn.id);
+        const movedCard = {
+          ...activeDraggingCardData,
+          column_id: overColumn.id,
+          columnId: overColumn.id
+        };
+        if (nextActiveColumn) {
+          nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card.id !== activeDraggingCardId);
+          if (isEmpty(nextActiveColumn.cards)) {
+            nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)];
           }
-          if (nextOverColumn) {
-            // keep existing cards in the target column
-            nextOverColumn.cards = nextOverColumn.cards.toSpliced(newCardIndex, 0, activeDraggingCardData);
+          nextActiveColumn.card_order_ids = nextActiveColumn.cards.map(card => card.id);
+        }
+        if (nextOverColumn) {
+          nextOverColumn.cards = nextOverColumn.cards.toSpliced(newCardIndex, 0, movedCard);
+          nextOverColumn.cards = nextOverColumn.cards.filter(card => !card.FE_PlaceholderCard);
+          nextOverColumn.card_order_ids = nextOverColumn.cards.map(card => card.id);
+        }
 
-            nextOverColumn.cards = nextOverColumn.cards.filter(card => !card.FE_PlaceholderCard);
+        setOrderedColumns(normalizeColumns(nextColumns));
 
-            nextOverColumn.card_order_ids = nextOverColumn.cards.map(card => card.id);
-          }
+        const nextActiveCardIds = toUuidList(nextActiveColumn?.cards);
+        const nextOverCardIds = toUuidList(nextOverColumn?.cards);
 
-
-          return normalizeColumns(nextColumns);
-        });
-        const nextActiveColumn = activeColumn;
-        const nextOverColumn = overColumn;
-        updateColumnAPI(nextActiveColumn.id, { card_order_ids: nextActiveColumn.cards.map(c => c.id) });
-        updateColumnAPI(nextOverColumn.id, { card_order_ids: nextOverColumn.cards.map(c => c.id) });
+        updateColumnAPI(nextActiveColumn.id, { card_order_ids: nextActiveCardIds });
+        updateColumnAPI(nextOverColumn.id, { card_order_ids: nextOverCardIds });
+        updateCardAPI(activeDraggingCardId, { column_id: overColumn.id });
       }
       else {
         const oldCardIndex = oldColumnWhenDragging?.cards?.findIndex(c => c.id === activeDragItemId); // Old index of active
@@ -227,7 +232,8 @@ function BoardContent({ board, createNewColumn, createNewCard, deleteCard, delet
 
           return normalizeColumns(nextColumns);
         });
-        updateColumnAPI(overColumn.id, { card_order_ids: dndOrderedCards.map(c => c.id) });
+        const orderedCardIds = toUuidList(dndOrderedCards);
+        updateColumnAPI(overColumn.id, { card_order_ids: orderedCardIds });
       }
     }
 
