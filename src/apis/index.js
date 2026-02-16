@@ -1,42 +1,42 @@
-import axios from "axios";
+import authorizedAxiosInstance from "~/utils/authorizeAxios";
 import { API_ROOT } from "~/utils/constants";
 
 // export const fetchBoardDetailsAPI = async (boardId) => {
-//     const res = await axios.get(`${API_ROOT}/v1/boards/${boardId}`);
+//     const res = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}`);
 //     return res.data;
 // }
 
 export const createNewColumnAPI = async (newColumnData) => {
-    const res = await axios.post(`${API_ROOT}/v1/columns/`, newColumnData);
+    const res = await authorizedAxiosInstance.post(`${API_ROOT}/v1/columns/`, newColumnData);
     return res.data;
 }
 
 export const createNewCardAPI = async (newCardData) => {
-    const res = await axios.post(`${API_ROOT}/v1/cards/`, newCardData);
+    const res = await authorizedAxiosInstance.post(`${API_ROOT}/v1/cards/`, newCardData);
     return res.data;
 }
 
 export const updateBoardAPI = async (boardId, updateData) => {
-    const res = await axios.put(`${API_ROOT}/v1/boards/${boardId}`, updateData);
+    const res = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/${boardId}`, updateData);
     return res.data;
 };
 
 export const updateColumnAPI = async (columnId, updateData) => {
-    const res = await axios.put(`${API_ROOT}/v1/columns/${columnId}`, updateData);
+    const res = await authorizedAxiosInstance.put(`${API_ROOT}/v1/columns/${columnId}`, updateData);
     return res.data;
 };
 
 export const updateCardAPI = async (cardId, updateData) => {
-    const res = await axios.put(`${API_ROOT}/v1/cards/${cardId}`, updateData);
+    const res = await authorizedAxiosInstance.put(`${API_ROOT}/v1/cards/${cardId}`, updateData);
     return res.data;
 };
 
 export const deleteCardAPI = async (cardId) => {
-    const res = await axios.delete(`${API_ROOT}/v1/cards/${cardId}`);
+    const res = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cards/${cardId}`);
     return res.data;
 }
 
 export const deleteColumnAPI = async (columnId) => {
-    const res = await axios.delete(`${API_ROOT}/v1/columns/${columnId}`);
+    const res = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/columns/${columnId}`);
     return res.data;
 }
