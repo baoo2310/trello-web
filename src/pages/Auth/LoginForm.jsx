@@ -3,13 +3,17 @@ import { Alert, Avatar, Box, Button, CardActions, TextField, Typography, Zoom } 
 import { Card as MuiCard } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import trello from '../../assets/trello-brands-solid-full.svg'
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators';
 import FieldErrorAlert from '../components/Form/FieldErrorAlert';
 
 function LoginForm() {
     const { register, handleSubmit, formState: { errors } } = useForm();
+    let [searchParams] = useSearchParams();
+    const registeredEmail = searchParams.get('registeredEmail');
+    const verifiedEmail = searchParams.get('verifiedEmail');
+
 
     const submitLogin = (data) => {
 
@@ -43,20 +47,25 @@ function LoginForm() {
                         flexDirection: 'column',
                         padding: '0 1em'
                     }}>
-                        <Alert severity='success' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
-                            Your email&nbsp;
-                            <Typography variant='span' sx={{ fontWeight: 'bold', ':&hover': { color: '#fdba26' } }}>
-                                baoo231005@gmail.com
-                            </Typography>
-                            &nbsp;has been verified. <br />Now you can login to enjoy our services! Have a good day
-                        </Alert>
-                        <Alert severity='info' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
-                            An email has been sent to &nbsp;
-                            <Typography variant='span' sx={{ fontWeight: 'bold', ':&hover': { color: '#fdba26' } }}>
-                                baoo231005@gmail.com
-                            </Typography>
-                            <br />Please check and verify your account before logging in!
-                        </Alert>
+                        {verifiedEmail && 
+                            <Alert severity='success' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+                                Your email&nbsp;
+                                <Typography variant='span' sx={{ fontWeight: 'bold', ':&hover': { color: '#fdba26' } }}>
+                                    {verifiedEmail}
+                                </Typography>
+                                &nbsp;has been verified. <br />Now you can login to enjoy our services! Have a good day
+                            </Alert>
+                        }
+                        
+                        {registeredEmail && 
+                            <Alert severity='info' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+                                An email has been sent to &nbsp;
+                                <Typography variant='span' sx={{ fontWeight: 'bold', ':&hover': { color: '#fdba26' } }}>
+                                    {registeredEmail}
+                                </Typography>
+                                <br />Please check and verify your account before logging in!
+                            </Alert>
+                        }
                     </Box>
                     <Box sx={{ padding: '0 1em 1em 1em' }}>
                         <Box sx={{ marginTop: '1em' }}>

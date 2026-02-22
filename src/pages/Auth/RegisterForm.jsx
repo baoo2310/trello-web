@@ -3,17 +3,26 @@ import { Alert, Avatar, Box, Button, CardActions, TextField, Typography, Zoom } 
 import { Card as MuiCard } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import trello from '../../assets/trello-brands-solid-full.svg'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators';
 import FieldErrorAlert from '../components/Form/FieldErrorAlert';
+import { toast } from 'react-toastify';
+import { registerUserAPI } from '~/apis';
 
 function RegisterForm() {
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
+    const navigate = useNavigate();
 
     const submitRegister = (data) => {
-
-    }
+        const { email, password } = data;
+        toast.promise(
+            registerUserAPI({ email, password }),
+            { pending: 'Registration is in progress...' }
+        ).then(user => {
+            navigate(`/login?registeredEmail=${user.email}`);
+        });
+    };
 
     return (
         <form onSubmit={handleSubmit(submitRegister)}>

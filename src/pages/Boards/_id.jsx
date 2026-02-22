@@ -11,6 +11,7 @@ import { generatePlaceholderCard } from '~/utils/formatter';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice';
 import { useParams } from 'react-router-dom';
+import PageLoadingSpinner from '../components/Loading/PageLoadingSpinner';
 
 function Board() {
     // const [board, setBoard] = useState(null);
@@ -106,6 +107,12 @@ function Board() {
             column_order_ids: nextColumns.map(c => c.id)
         };
         dispatch(updateCurrentActiveBoard(newBoard));
+    }
+
+    if(!board) {
+        return (
+            <PageLoadingSpinner caption="Loading Board"/>
+        );
     }
 
     return (
