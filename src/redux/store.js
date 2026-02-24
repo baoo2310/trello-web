@@ -18,5 +18,13 @@ const reducers = combineReducers({
 const persistedReducers = persistReducer(rootPersistConfig, reducers);
 
 export const store = configureStore({
-    reducer: persistedReducers
+    reducer: persistedReducers,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: ['confirm-dialog/register', 'confirm-dialog/remove', 'persist/PERSIST'],
+                ignoredActionPaths: ['register', 'rehydrate'],
+                ignoredPaths: ['confirmDialog']
+            }
+        })
 });

@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { interceptorLoadingElements } from './formatter';
+import { logoutUserAPI } from '~/redux/user/userSlice';
+import { refreshTokenAPI } from '~/apis';
 
 // Init Axios (authorizedAxiosInstance) to custom and configuration.
 
@@ -25,6 +27,11 @@ authorizedAxiosInstance.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+let axiosReduxStore;
+export const injectStore = mainStore => { axiosReduxStore = mainStore; }
+
+let refreshTokenPromise = null;
+
 authorizedAxiosInstance.interceptors.response.use((response) => {
     // 
     interceptorLoadingElements(false);
@@ -32,6 +39,38 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
 }, (error) => {
 
     interceptorLoadingElements(false);
+
+    // Automation handle refresh token
+    // 1: If received 401 from BE -> call logout API
+    if(error.response?.status === 401){
+        axiosReduxStore.dispatch(logoutUserAPI(false));
+    }
+
+    // 2: If received 410 from BE -> call refresh token api to refresh accessToken
+    const originalRequests = error.config;
+    if(error.response?.status === 410 && !originalRequests._retry){
+        originalRequests._retry = true;
+        if(!refreshTokenPromise) {
+            refreshTokenPromise = refreshTokenAPI()
+                .then(data => {
+                    return data?.accessToken;
+                })
+                .catch((_error) => {
+                    axiosReduxStore.dispatch(logoutUserAPI(false))
+                    return Promise.reject(_error);
+                })
+                .finally(() => {
+                    refreshTokenPromise = null;
+                });
+        }
+        return refreshTokenPromise.then(accessToken => {
+            // If our project need to save accessToken to localStorage or somewhere -> the code be there
+            // Example:
+            // axios.defaults.headers.common['Authorization'] = 'Bearer ' + accessToken
+            return authorizedAxiosInstance(originalRequests);
+        })
+    }
+    
 
     let errorMessage = error?.message;
     if(error.response?.data?.message){
