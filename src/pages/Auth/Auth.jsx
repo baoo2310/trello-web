@@ -3,10 +3,19 @@ import React from 'react'
 import bg from '../../assets/alex-shutin-kKvQJ6rK6S4-unsplash.jpg';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '~/redux/user/userSlice';
+import { Navigate } from 'react-router-dom';
 
 function Auth() {
     const isLogin = location.pathname === '/login';
     const isRegister = location.pathname === '/register';
+
+    const currentUser = useSelector(selectCurrentUser);
+    if(currentUser) {
+        return <Navigate to='/' replace={true}/>
+    }
+
     return (
         <Box sx={{
             display: 'flex',

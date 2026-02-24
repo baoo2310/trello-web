@@ -3,12 +3,18 @@ import { Alert, Avatar, Box, Button, CardActions, TextField, Typography, Zoom } 
 import { Card as MuiCard } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import trello from '../../assets/trello-brands-solid-full.svg'
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators';
 import FieldErrorAlert from '../components/Form/FieldErrorAlert';
+import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
+import { loginUserAPI } from '~/redux/user/userSlice';
 
 function LoginForm() {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const { register, handleSubmit, formState: { errors } } = useForm();
     let [searchParams] = useSearchParams();
     const registeredEmail = searchParams.get('registeredEmail');
@@ -16,7 +22,14 @@ function LoginForm() {
 
 
     const submitLogin = (data) => {
-
+        const { email, password } = data;
+        toast.promise(
+            dispatch(loginUserAPI({ email, password })),
+            { pending: 'Logging in...' }
+        ).then(res => {
+            // console.log(res);
+            if(!res.error) navigate('/');
+        })
     }
     
     return (
