@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.9",
     "@mui/icons-material": "5.8.3",
+    "@mui/lab": "^7.0.1-beta.22",
     "@mui/material": "^7.3.7",
     "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.13.5",

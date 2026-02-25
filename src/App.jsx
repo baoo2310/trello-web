@@ -5,6 +5,7 @@ import Auth from "./pages/Auth/Auth";
 import AuthenticationVerification from "./pages/Auth/AuthenticationVerification";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "./redux/user/userSlice";
+import Settings from "./pages/Settings/Settings";
 
 const ProtectedRoute = ({ user }) => {
   if(!user) return <Navigate to='/login' replace={true}/>
@@ -24,8 +25,11 @@ function App() {
         }/>
         {/* Protected Routes allow access after login in */}
         <Route element={<ProtectedRoute user={currentUser} />}>
+        {/* Outlet of react-router-dom will run child route */}
           <Route path="/boards/:boardId" element={<Board/>} />
-          {/* Outlet of react-router-dom will run child route */}
+          
+          <Route path="/settings/account" element={<Settings />} />
+          <Route path="/settings/security" element={<Settings />} />
         </Route>
         <Route path="/login" element={<Auth />}/>
         <Route path="/register" element={<Auth />}/>
