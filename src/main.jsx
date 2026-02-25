@@ -14,6 +14,7 @@ import persistStore from 'redux-persist/es/persistStore';
 import { PersistGate } from 'redux-persist/integration/react';
 import { ConfirmProvider } from 'material-ui-confirm';
 import { injectStore } from './utils/authorizeAxios.js';
+import { GlobalStyles } from '@mui/material';
 
 const persistor = persistStore(store);
 
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')).render(
       <PersistGate persistor={persistor}>
         <ConfirmProvider>
           <CssVarsProvider theme={theme}>
+            <GlobalStyles styles={{ a: { textDecoration: 'none' } }} />
             <CssBaseline />
             <App />
             <ToastContainer position='bottom-right' theme='colored'/>

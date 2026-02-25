@@ -67,6 +67,12 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
             // If our project need to save accessToken to localStorage or somewhere -> the code be there
             // Example:
             // axios.defaults.headers.common['Authorization'] = 'Bearer ' + accessToken
+            if (accessToken) {
+                originalRequests.headers = {
+                    ...originalRequests.headers,
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
             return authorizedAxiosInstance(originalRequests);
         })
     }
