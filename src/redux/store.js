@@ -22,7 +22,14 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                ignoredActions: ['confirm-dialog/register', 'confirm-dialog/remove', 'persist/PERSIST'],
+                ignoredActions: [
+                    'confirm-dialog/register', 
+                    'confirm-dialog/remove', 
+                    'persist/PERSIST', 
+                    'user/updateUserAPI/pending',
+                    'user/updateUserAPI/fulfilled',
+                    'user/updateUserAPI/rejected'
+                ],
                 ignoredActionPaths: ['register', 'rehydrate'],
                 ignoredPaths: ['confirmDialog']
             }

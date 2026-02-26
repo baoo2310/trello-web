@@ -68,7 +68,13 @@ function AccountTab() {
     const reqData = new FormData()
     reqData.append('avatar', file);
     // TODO: call API to upload avatar
-    toast.success('Avatar uploaded (mock).');
+    toast.promise(
+      dispatch(updateUserAPI(reqData)),
+      { pending: 'Updating...' }
+    ).then(res => {
+      if(!res.error) toast.success('User updated successfully')
+      e.target.value = '';
+    })
   }
 
   return (
@@ -78,7 +84,7 @@ function AccountTab() {
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems="center">
         <Avatar
           sx={{ width: 80, height: 80 }}
-          src={currentUser?.avatar_url || ''}
+          src={currentUser?.avatar || ''}
           alt={currentUser?.display_name || 'User'}
         />
         <Button variant="outlined" component="label">
