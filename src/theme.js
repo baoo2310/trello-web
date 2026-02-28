@@ -33,7 +33,7 @@ const theme = extendTheme({
                 },
                 text: {
                     primary: '#414141', // White text
-                    secondary: '#b2bac2' // Light grey for secondary text
+                    secondary: '#90caf9' // Light grey for secondary text
                 }
             },
         },
@@ -41,7 +41,7 @@ const theme = extendTheme({
             palette: {
                 primary: {
                     main: '#579dff',
-                    light: '#82c7ff',
+                    light: '#37566e',
                     dark: '#ffffff'
                 },
                 secondary: {
@@ -51,11 +51,11 @@ const theme = extendTheme({
                 },
                 background: {
                     default: 'rgb(35, 52, 77)', // Modern "Deep Slate"
-                    paper: '#161b22'
+                    paper: '#29323f'
                 },
                 text: {
                     primary: '#b6c2cf',
-                    secondary: '#000000'
+                    secondary: '#579dff'
                 }
             },
         }
